@@ -39,8 +39,8 @@ try:
         writer= csv.writer(f)
     for row in data:
         writer.writerow(row)
-        #for change in changes:
-            #print (change.split(","))
+        for change in changes:
+            print (change.split(","))
 except FileNotFoundError:
      print("Failed to run the command.")
 
