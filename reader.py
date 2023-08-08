@@ -25,8 +25,8 @@ data = []
 try:
     with open(in_file, "r") as f:
         reader = csv.reader(f)
-    for line in reader:
-        data.append(line)
+        for line in reader:
+            data.append(line)
 except FileNotFoundError:
      print("This file does not exist.")
      print("Current files inside the folder are: \n")
@@ -34,26 +34,27 @@ except FileNotFoundError:
         print(file)
 
 #use collum index and rox index- change value 1,1,cat
-try:
-    with open(out_file, "w", newline="") as f:
-        writer= csv.writer(f)
-    for row in data:
-        writer.writerow(row)
-        for change in changes:
-            print (change.split(","))
-except FileNotFoundError:
-     print("Failed to run the command.")
 
-csv_data = csv.reader(f)
+
 for change in changes:
         try:
-            col, row, value = map(int, change.split(','))
-            if row < len(csv_data) and col < len(csv_data[row]):
-                csv_data[row][col] = value
+            col = int(change.split(',')[0])
+            row = int(change.split(',')[1])
+            value = change.split(',')[2]
+            if row < len(data) and col < len(data[row]):
+                data[row][col] = value
             else:
                 print(f"Warning: Ignoring update '{change}' - Invalid row or column.")
         except ValueError:
             print(f"Warning: Ignoring invalid update '{change}' - Incorrect format.")
+try:
+    with open(out_file, "w", newline="") as f:
+        writer= csv.writer(f)
+        for row in data:
+            writer.writerow(row)
+
+except FileNotFoundError:
+     print("Failed to run the command.")
 
 print(sys.argv)
 print()
