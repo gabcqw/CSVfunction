@@ -4,24 +4,9 @@ import csv
 import pickle
 import json
 
-class WrongNumOfCellInRowErr(Exception):
-    pass
+##select functions: reader, change, save 
 
-class InsufficientDataErr(Exception):
-    pass
-
-class FileTypeNotFoundERR(Exception):
-    pass
-
-def validat_data(content):
-
-    for idx, row in enumerate(content):
-        if len(row) != 4: #create wrong data doc to test
-            raise WrongNumOfCellInRowErr(f"Incorrect number of cells in row: {idx} {row}. /n")
-        
-    if len(row) < 4:
-        raise InsufficientDataErr(f"Only {len(content)- 1} rows. Please enter more date if you wish. /n")
-
+#Reader functions 
 def reader_csv(file_name):
     data = []
     
@@ -29,146 +14,102 @@ def reader_csv(file_name):
         reader = csv.reader(f)
         for row in reader:
             data.append(row)
-        
     return data
 
-
-class FileHandler:
-    PKG_attr = None
-    def read(self, file_name):
-        with open(file_name, "rb") as f:
-            return self.PKG_attr.load(f)
-    def write(self, content, file_name):
-        with open(file_name, "wb") as f:
-            return self.PKG_attr.dump(content, f)
-        
-class JSHandler:
-    PKG_attr = json
+def reader_json(file_name):
+    with open(file_name, "rb") as f:
+        data = json.load(f)
     
+    return data
 
-class CSVHandler:
-    PKG_attr = pickle
-    
-    def write(self, content, file_name):
-        with open(file_name, "w") as f:
-            writer = csv.writer(f)
-            writer.writerows(content)
-            
-class PKLHandler:
-    def read(self, file_name):
-        with open(file_name, "rb") as f:
-            return pickle.load(f)
-    def write(self, content, file_name):
-        with open(file_name, "wb") as f:
-            return pickle.dump(content, f)
+def read_pickle(file_name):
+    with open(file_name, "rb") as f:
+        data= pickle.load(f)
 
+    return data
 
-#need header? need zip function?
-def csv_to_list_dicts(content):
-    rows = content[1:]
-    return [dict(zip(row)) for row in rows]
-
-class DataProcessor:
-    def __init__(self, in_file, out_file):
-        self.in_file=in_file
-        self.out_file=out_file
-        self.input_handler= None
-        self.output_handler= None
-    
-    def get_hdlr_for_files(self, file_name):
-        if file_name.endwith(".csv"):
-            return CSVHandler
-        elif file_name.endwith(".json"):
-            return JSHandler
-        elif file_name.endwith(".pkl"):
-            return PKLHandler
-        else: 
-            raise FileTypeNotFoundERR(f"{file_name}- this document type is not supported. /n")
-    
-    def update_processor(self):
-        self.input_handler = self.get_hdlr_for_files(self.in_file)
-        self.oput_handler = self.get_hdlr_for_files(self.out_file)
-    
-    def read_content(self):
-        self.content = self.input_handler(self.in_file)
-    
-    def write_content(self):
-        self.output_handler.write(self.out_file)
-
-#QQ? the modify part equals changes part in reader py?
-    def modify_content(self):
-        output = []
-        for content in content:
-            col = int(content.split(',')[0])
-            row = int(content.split(',')[1])
-            value = content.split(',')[2]
-            if row < len(output) and col < len(output[row]):
-                output[row][col] = value
+def modify_content(content_file, changes):
+        for change in changes:
+            col = int(change.split(',')[0])
+            row = int(change.split(',')[1])
+            value = change.split(',')[2]
+            if row < len(content_file) and col < len(content_file[row]):
+                content_file[row][col] = value
             else:
-                print(f"Warning: Ignoring update '{output}' - Invalid row or column.")
-            output.append(row)
-            output.append(col) 
-            self.content = output
+                print(f"Warning: Ignoring update '{content_file}' - Invalid row or column.")
+        
+        return content_file
+
+def save_json(output_file_name, changed_content):
+        with open(output_file_name, "wb") as f:
+            json.dump(changed_content, f)
+        
+    
+def write(output_file_name, changed_content):
+        with open(output_file_name, "w") as f:
+            writer = csv.writer(f)
+            writer.writerows(changed_content)
             
-
-    def run(self):
-        self.update_processor()
-        self.read_content()
-        self.write_content()
-        self.modify_content()
-
+def write(output_file_name, changed_content):
+        with open(output_file_name, "wb") as f:
+            return pickle.dump(changed_content, f)
 
 
 if __name__ == "_main_":
-    if not len(sys.argv) >1:
-        print(f"ERROR: You should enter more arguments: {sys.argv}")
-        exit()
 
-content = reader_csv("in.csv")
-for row in content[:4]:
-    print(row)
+    # Add validation of input
+
+    # Get variables
+    input_file_name = sys.argv[1]
+    output_file_name = sys.argv[2]
+    changes = sys.argv[3:]
     
-    file_path = sys.argv[1]
-    if not os.path.exists(file_path):
-        all_file = os.path.spilt(file_path)[0]
-        if not all_file:
-            all_file = os.getcwd()
-        other_files = [
-            f for f in os.listdir(all_file)
-            if not os.path.isdir(f) and (".csv" in f or ".json" in f or ". pkl" in f)
-        ]
-        print("ERROR: It does not exist: {file_path}")
-        print("Do you mean to find one of these files: {other_files}?")
-        exit()
-    
-#检查是否需要
-#file_reader = get_hdlr_for_files(file_path)
-    #print(file_reader)
-        #exit()
+    class CsvHandler:
+        def read(self, file_name):
+            data = []
+
+            with open(file_name, "r") as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    data.append(row)
+
+            return data
+
+        def write(self, file_name, content):
+            with open(file_name, "w", endline="") as f:
+                writer = csv.writer(f)
+                writer.writerows(content)
+
+    class PklHandler:
+        def read(self, file_name):
+            with open(file_name, "rb") as f:
+             return pickle.load(f)
+        def write(self, content, file_name):
+            with open(file_name, "wb") as f:
+                return pickle.dump(content, f)
+            
+    class JsonHandler:
+        def read(self, file_name):
+            with open(file_name, "rb") as f:
+                return json.load(f)
+        def write(self, content, file_name):
+            with open(file_name, "wb") as f:
+                return pickle.dump(content, f)
 
 
-    content = reader_csv(file_path)
 
-    try:
-        validat_data(content)
-    except WrongNumOfCellInRowErr as e:
-        print(f"ERROR: {e}")
-        exit()
+    def select_handler(file_name):
+        if file_name.endswith(".csv"):
+            return CsvHandler()
+        elif input_file_name.endswith(".json"):
+            return JsonHandler()
+        elif input_file_name.endswith(".pickle"):
+           return PklHandler()
+        else:
+            raise Exception(f"File type not supported: {input_file_name}")
+ 
 
-    except InsufficientDataErr as e:
-        print(f"WARNING: {e}")
-        exit()
-
-#周一测试这个的时候可以看一下是否通过，不可以的话删掉 pkl json 
-#jh=JSHandler, jh.save(content, "update_json.json")
-    with open("Indata.json", "w") as f:
-        json.dump(content, f, indent = 1)
-    
-    with open("Indata.pkl", "wb") as f:
-        json.dump(content, f)
-
-    content = csv_to_list_dicts(content)
-    
+ 
 
 
 
