@@ -94,20 +94,30 @@ if __name__ == "_main_":
                 return json.load(f)
         def write(self, content, file_name):
             with open(file_name, "wb") as f:
-                return pickle.dump(content, f)
+                return json.dump(content, f)
 
 
 
     def select_handler(file_name):
         if file_name.endswith(".csv"):
             return CsvHandler()
-        elif input_file_name.endswith(".json"):
+        elif file_name.endswith(".json"):
             return JsonHandler()
-        elif input_file_name.endswith(".pickle"):
+        elif file_name.endswith(".pickle"):
            return PklHandler()
         else:
             raise Exception(f"File type not supported: {input_file_name}")
- 
+
+    if not os.path.exists(input_file_name):
+        all_file = os.path.spilt(input_file_name)[0]
+        if not all_file:
+            all_file = os.getcwd()
+        other_files = [
+            f for f in os.listdir(all_file)
+            if not os.path.isdir(f) and (".csv" in f or ".json" in f or ". pkl" in f)
+        ]
+    
+    file = select_handler(input_file_name)
 
  
 
