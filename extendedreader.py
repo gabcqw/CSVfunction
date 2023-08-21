@@ -118,7 +118,8 @@ if __name__ == "_main_":
         ]
     
     file = select_handler(input_file_name)
-
+    data1 = file.read(input_file_name)
+    print(data1)
  
 
 
