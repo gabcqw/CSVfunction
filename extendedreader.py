@@ -106,7 +106,7 @@ if __name__ == "_main_":
         elif file_name.endswith(".pickle"):
            return PklHandler()
         else:
-            raise Exception(f"File type not supported: {input_file_name}")
+            raise Exception(f"File type not supported: {input_file_name}. You need to try enter the other file name.")
 
     if not os.path.exists(input_file_name):
         all_file = os.path.spilt(input_file_name)[0]
@@ -116,10 +116,15 @@ if __name__ == "_main_":
             f for f in os.listdir(all_file)
             if not os.path.isdir(f) and (".csv" in f or ".json" in f or ". pkl" in f)
         ]
+
+
     
     file = select_handler(input_file_name)
     data1 = file.read(input_file_name)
+    data2 = modify_content(data1, changes)
+    file.write(data2, output_file_name)
     print(data1)
+    print(data2)
  
 
 
