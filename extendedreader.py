@@ -84,17 +84,18 @@ class PklHandler:
     def read(self, file_name):
         with open(file_name, "rb") as f:
             return pickle.load(f)
-    def write(self, content, file_name):
+    def write(self, file_name, content):
         with open(file_name, "wb") as f:
             return pickle.dump(content, f)
             
 class JsonHandler:
     def read(self, file_name):
-        with open(file_name, "rb") as f:
+        with open(file_name, "r") as f:
             return json.load(f)
-    def write(self, content, file_name):
-        with open(file_name, "wb") as f:
+    def write(self, file_name, content):
+        with open(file_name, "w") as f:
             return json.dump(content, f)
+
 
 
 
@@ -122,7 +123,7 @@ if not os.path.exists(input_file_name):
 file = select_handler(input_file_name)
 data1 = file.read(input_file_name)
 data2 = modify_content(data1, changes)
-file.write(data2, output_file_name)
+file.write(output_file_name,data2)
 print(data1)
 print(data2)
  
